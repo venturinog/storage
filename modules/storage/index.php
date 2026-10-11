@@ -226,46 +226,60 @@ function list_storage_devices($smarty, $module_name, $local_templates_dir, $erro
 
     $contenidoModulo .= $oGrid->fetchGrid($arrGrid, $arrData);
 
-    $contenidoModulo .= "<div id='formatdialog' style='display:none;'>";
+    // Diálogos ocultos + modal BS5 reutilizable (reemplaza a jQuery facebox).
+    $contenidoModulo .= "<div id='issStorageDialogs' class='d-none'>";
+
+    $contenidoModulo .= "<div id='formatdialog'>";
     $contenidoModulo .= "
         <form method='post' id='formdevice'>
-        <input type=hidden name='targetdevice' id='targetdevice'>
-        <input type=hidden name='targetaction' id='targetaction'>
-        <input type=hidden name='fheader' id='fheader' value='"._tr('Format and partition')."'>
-        <h2 class='title'></h2></br>
-        "._tr("Type").": <select name='format' id='format'><option value='vfat'>FAT</option><option value='ext4'>EXT4</option></select>
+        <input type=hidden name='targetdevice'>
+        <input type=hidden name='targetaction'>
+        <input type=hidden name='fheader' value='"._tr('Format and partition')."'>
+        "._tr("Type").": <select name='format' id='format' class='form-select'><option value='vfat'>FAT</option><option value='ext4'>EXT4</option></select>
         </br></br>
         <button class='btn btn-danger' onclick='formatDevice()'>"._tr('FORMAT AND ERASE ALL DATA')."</button>
-        <button class='btn btn-primary' onclick='event.preventDefault();jQuery(document).trigger(\"close.facebox\")'>"._tr('Cancel')."</button>
+        <button class='btn btn-secondary' onclick='event.preventDefault();issStorageClose()'>"._tr('Cancel')."</button>
         </form>
         ";
     $contenidoModulo .= "</div>";
 
-    $contenidoModulo .= "<div id='umountdialog' style='display:none;'>";
+    $contenidoModulo .= "<div id='umountdialog'>";
     $contenidoModulo .= "
-
         <form method='post' id='formdeviceumount'>
-        <input type=hidden name='targetdevice' id='targetdevice'>
-        <input type=hidden name='targetaction' id='targetaction'>
-        <input type=hidden name='fheader' id='fheader' value='"._tr('Unmount')."'>
-        <h2 class='title'></h2><br/>
+        <input type=hidden name='targetdevice'>
+        <input type=hidden name='targetaction'>
+        <input type=hidden name='fheader' value='"._tr('Unmount')."'>
         <button class='btn btn-primary' onclick='umountDevice()'>"._tr("Safely Remove")."</button>
         </form>
         ";
     $contenidoModulo .= "</div>";
 
-    $contenidoModulo .= "<div id='mountdialog' style='display:none;'>";
+    $contenidoModulo .= "<div id='mountdialog'>";
     $contenidoModulo .= "
-
         <form method='post' id='formdevicemount'>
-        <input type=hidden name='targetdevice' id='targetdevice'>
-        <input type=hidden name='targetaction' id='targetaction'>
-        <input type=hidden name='fheader' id='fheader' value='"._tr('Mount')."'>
-        <h2 class='title'></h2><br/>
+        <input type=hidden name='targetdevice'>
+        <input type=hidden name='targetaction'>
+        <input type=hidden name='fheader' value='"._tr('Mount')."'>
         <button class='btn btn-primary' onclick='mountDevice()'>"._tr("Mount as Spool/Recordings")."</button>
         </form>
         ";
     $contenidoModulo .= "</div>";
+
+    $contenidoModulo .= "</div>"; // #issStorageDialogs
+
+    $contenidoModulo .= "
+    <div class='modal fade' id='issStorageModal' tabindex='-1' aria-hidden='true'>
+      <div class='modal-dialog modal-dialog-centered'>
+        <div class='modal-content'>
+          <div class='modal-header'>
+            <h5 class='modal-title' id='issStorageModalTitle'></h5>
+            <button type='button' class='btn-close' onclick='issStorageClose()' aria-label='Close'></button>
+          </div>
+          <div class='modal-body' id='issStorageModalBody'></div>
+        </div>
+      </div>
+    </div>
+    ";
 
     return $contenidoModulo;
 }

@@ -3,7 +3,7 @@
 Summary: Issabel Storage
 Name: issabel-storage
 Version: 4.0.0
-Release: 1
+Release: 2
 License: GPL
 Group:   Applications/System
 Source0: issabel-%{modname}-%{version}.tar.gz
@@ -90,3 +90,6 @@ fi
 /usr/local/bin/storage.sh
 
 %changelog
+* Sun Oct 11 2026 Issabel Foundation <info@issabel.org> - 4.0.0-2
+- Storage: replace jQuery facebox with the theme's Bootstrap 5 modal for the
+  format/unmount/mount dialogs (drop the bundled facebox plugin and CSS).

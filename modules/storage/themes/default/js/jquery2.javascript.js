@@ -1,92 +1,94 @@
+/* Storage: diálogos con el modal BS5 del tema (antes jQuery facebox). */
 deviceToFormat   = '';
 deviceToUnmount  = '';
 deviceToMount    = '';
 
-$(document).ready(function() {
+function issStorageOpen(sel) {
+    var store = document.getElementById('issStorageDialogs');
+    var body  = document.getElementById('issStorageModalBody');
+    var src   = document.querySelector(sel);
+    if (!store || !body || !src) return;
 
-    $(document).bind('reveal.facebox', function(el) {
+    /* Devolver al store lo que quedó del diálogo anterior */
+    while (body.firstChild) store.appendChild(body.firstChild);
+    body.appendChild(src);
 
-        if(deviceToFormat!='') {
-            dev = deviceToFormat;
-        }
-        if(deviceToUnmount!='') {
-            dev = deviceToUnmount;
-        }
-        if(deviceToMount!='') {
-            dev = deviceToMount;
-        }
+    var dev = deviceToFormat || deviceToUnmount || deviceToMount;
+    var headerEl = body.querySelector('[name=fheader]');
+    document.getElementById('issStorageModalTitle').textContent =
+        (headerEl ? headerEl.value : '') + (dev ? ' ' + dev : '');
 
-        header = $('#fheader','#facebox').val(); 
-        $('.title','#facebox').html(header+' '+dev);
-    });
+    var modalEl = document.getElementById('issStorageModal');
+    if (window.bootstrap && bootstrap.Modal) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    } else {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+    }
+}
 
-    $(document).bind('close.facebox', function(el) {
-        deviceToFormat  = '';
-        deviceToMount   = '';
-        deviceToUnmount = '';
-    });
-
-});
+function issStorageClose() {
+    var modalEl = document.getElementById('issStorageModal');
+    if (window.bootstrap && bootstrap.Modal) {
+        var inst = bootstrap.Modal.getInstance(modalEl);
+        if (inst) inst.hide();
+    } else {
+        modalEl.classList.remove('show');
+        modalEl.style.display = 'none';
+    }
+    deviceToFormat  = '';
+    deviceToMount   = '';
+    deviceToUnmount = '';
+}
 
 function showFormat(dev) {
     deviceToFormat=dev;
     deviceToUnmount='';
     deviceToMount='';
-    jQuery.facebox({ div: '#formatdialog' });
+    issStorageOpen('#formatdialog');
 }
 
 function showUmount(dev) {
     deviceToFormat='';
     deviceToMount='';
     deviceToUnmount=dev;
-    jQuery.facebox({ div: '#umountdialog' });
+    issStorageOpen('#umountdialog');
 }
 
 function showMount(dev) {
     deviceToFormat='';
     deviceToUnmount='';
     deviceToMount=dev;
-    jQuery.facebox({ div: '#mountdialog' });
+    issStorageOpen('#mountdialog');
+}
+
+function issStorageSubmit(action) {
+    var body = document.getElementById('issStorageModalBody');
+    var dev = deviceToFormat || deviceToUnmount || deviceToMount;
+    if (!body || dev == '') { issStorageClose(); return; }
+
+    var format = body.querySelector('#format');
+    var formatValue = format ? format.value : null;
+
+    issStorageClose();
+
+    body.querySelector('[name=targetdevice]').value = dev;
+    body.querySelector('[name=targetaction]').value = action;
+    if (formatValue !== null) body.querySelector('#format').value = formatValue;
+    body.querySelector('#formdevice').submit();
 }
 
 function formatDevice() {
     event.preventDefault();
-    if(deviceToFormat=='') {
-        jQuery(document).trigger('close.facebox');
-    } else {
-        dev = deviceToFormat;
-        format = $('#facebox').find('#format').val()
-        jQuery(document).trigger('close.facebox');
-        $('#targetdevice').val(dev);
-        $('#targetaction').val('format');
-       
-        $('#format').val(format);
-        $('#formdevice').submit();
-    }
+    issStorageSubmit('format');
 }
 
 function umountDevice() {
     event.preventDefault();
-    if(deviceToUnmount=='') {
-        jQuery(document).trigger('close.facebox');
-    } else {
-        dev = deviceToUnmount;
-        jQuery(document).trigger('close.facebox');
-        $('#targetdevice').val(dev);
-        $('#targetaction').val('unmount');
-        $('#formdevice').submit();
-    }
+    issStorageSubmit('unmount');
 }
 
 function mountDevice() {
     event.preventDefault();
-    if(deviceToMount=='') {
-        jQuery(document).trigger('close.facebox');
-    } else {
-        dev = deviceToMount;
-        jQuery(document).trigger('close.facebox');
-        $('#targetdevice').val(dev);
-        $('#targetaction').val('mount');
-        $('#formdevice').submit();
-    }
+    issStorageSubmit('mount');
 }
